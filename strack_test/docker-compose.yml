@@ -6,7 +6,7 @@ services:
       - '3306:3306'
     restart: always
     volumes:
-      - /docker/mysql:/var/lib/mysql
+      - /docker_test/mysql:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD=root
   redis:
@@ -16,7 +16,7 @@ services:
     ports:
       - '6379:6379'
     volumes:
-      - /docker/redis:/data
+      - /docker_test/redis:/data
   rabbitmq:
     image: 'rabbitmq:management'
     restart: always
@@ -30,31 +30,31 @@ services:
     image: 'centrifugo/centrifugo:v2.8'
     restart: always
     ports:
-      - '8000:8000'
+      - '19803:8000'
     command: centrifugo -c config.json
     volumes:
-      - /docker/centrifugo/config:/centrifugo
+      - /docker_test/centrifugo_config:/centrifugo
   strack_media:
     image: 'weijer/strack-media:latest'
     restart: always
     ports:
-      - '18001:8080'
+      - '19802:8080'
     depends_on:
       - rabbitmq
       - mysql
       - redis
     volumes:
-      - /docker/strack_media/config:/app/config
+      - /docker_test/media_config:/app/config
   strack:
     image: 'weijer/strack-docker:latest'
     restart: always
     ports:
-      - '18002:80'
+      - '19801:80'
     depends_on:
       - rabbitmq
       - mysql
       - redis
       - strack_media
       - centrifugo
-   volumes:
-      - /docker/strack:/var/www
+    volumes:
+      - /docker_test/strack:/var/www

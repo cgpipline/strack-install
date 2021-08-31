@@ -1,0 +1,35 @@
+server:
+  port: 8080
+  mode: debug
+  staticPath: ./static/
+ffmpeg:
+  ffmpegBinPath: ./natron/bin/ffmpeg
+  ffprobeBinPath: ./natron/bin/ffprobe
+  mode: video_transcode
+mysql:
+  host: mysql
+  port: 3306
+  database: strack_media
+  username: root
+  password: strack
+  charset: utf8
+  maxQueryNumber: 1000
+amqp:
+  host: rabbitmq
+  port: 5672
+  user: strack
+  password: strack
+  vhost: /
+  queueName: strack_machinery
+  queueAutoDeleted: false
+  resultsExpireIn: 1200
+redis:
+  host: redis
+  password: strack
+  port: 6379
+  select: 8
+transcode:
+  workNumber: 3
+token:
+  access_key: 448c93c47bb503b758421ee74cb25b33
+  secret_key: e8d4f937b77c0a343bbba34c5276b395
