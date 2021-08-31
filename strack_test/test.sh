@@ -28,5 +28,10 @@ cp ./../install/media/config/application.yml /${CENTRIFUGO_CONFIG_DIR}/applicati
 # 创建strack 数据文件夹并解压拷贝代码
 mkdir -p /${STRACK_CORE_DIR}
 
+# 配置防火墙 centos
+firewall-cmd --permanent --add-port=19567/tcp
+firewall-cmd --permanent --add-port=19568/tcp
+firewall-cmd --reload
+
 # 执行docker-compose
 
