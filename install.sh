@@ -3,7 +3,7 @@
 # 安装strack
 
 # strack 安装根目录
-STRACK_ROOT_DIR="docker"
+STRACK_ROOT_DIR="docker_strack"
 MYSQL_DATA_DIR=${STRACK_ROOT_DIR}/"mysql"
 DATABASE_DIR=${STRACK_ROOT_DIR}/"database"
 REDIS_DATA_DIR=${STRACK_ROOT_DIR}/"redis"
