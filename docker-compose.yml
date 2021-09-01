@@ -1,22 +1,29 @@
-version: "3.7"
+version: "3"
 services:
   mysql:
     image: 'mysql:5.7'
     ports:
-      - '3306:3306'
+      - '19807:3306'
     restart: always
     volumes:
+      - /docker/database/sql:/opt/sql
+      - /docker/database/shell:/docker-entrypoint-initdb.d
       - /docker/mysql:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD=root
+      MYSQL_ROOT_PASSWORD: 'strack'
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      strack:
   redis:
     image: 'redis:5'
     restart: always
     command: redis-server --requirepass strack --appendonly yes
     ports:
-      - '6379:6379'
+      - '19806:6379'
     volumes:
       - /docker/redis:/data
+    networks:
+      strack:
   rabbitmq:
     image: 'rabbitmq:management'
     restart: always
@@ -24,37 +31,47 @@ services:
       RABBITMQ_DEFAULT_USER: 'strack'
       RABBITMQ_DEFAULT_PASS: 'strack'
     ports:
-      - '15672:15672'
-      - '5672:5672'
+      - '19805:15672'
+      - '19804:5672'
+    networks:
+      strack:
   centrifugo:
     image: 'centrifugo/centrifugo:v2.8'
     restart: always
     ports:
-      - '8000:8000'
+      - '19803:8000'
     command: centrifugo -c config.json
     volumes:
       - /docker/centrifugo/config:/centrifugo
+    networks:
+      strack:
   strack_media:
     image: 'weijer/strack-media:latest'
     restart: always
     ports:
-      - '18001:8080'
+      - '19802:8080'
     depends_on:
       - rabbitmq
       - mysql
       - redis
     volumes:
-      - /docker/strack_media/config:/app/config
+      - /docker/media/config:/app/config
+    networks:
+      strack:
   strack:
     image: 'weijer/strack-docker:latest'
     restart: always
     ports:
-      - '18002:80'
+      - '19801:80'
     depends_on:
       - rabbitmq
       - mysql
       - redis
       - strack_media
       - centrifugo
-   volumes:
+    volumes:
       - /docker/strack:/var/www
+    networks:
+      strack:
+networks:
+  strack:
