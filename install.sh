@@ -48,4 +48,4 @@ firewall-cmd --permanent --add-port=19807/tcp
 firewall-cmd --reload
 
 # 执行docker-compose
-docker-compose up
+docker-compose up -d
