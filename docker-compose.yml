@@ -6,9 +6,9 @@ services:
       - '19807:3306'
     restart: always
     volumes:
-      - /docker_strack/database/sql:/opt/sql
-      - /docker_strack/database/shell:/docker-entrypoint-initdb.d
-      - /docker_strack/mysql:/var/lib/mysql
+      - ./install/database/sql:/opt/sql
+      - ./install/database/shell:/docker-entrypoint-initdb.d
+      - ./install/database/mysql:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: 'strack'
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
@@ -21,7 +21,7 @@ services:
     ports:
       - '19806:6379'
     volumes:
-      - /docker_strack/redis:/data
+      - ./install/database/redis:/data
     networks:
       strack:
   rabbitmq:
@@ -42,7 +42,7 @@ services:
       - '19803:8000'
     command: centrifugo -c config.json
     volumes:
-      - /docker_strack/centrifugo/config:/centrifugo
+      - ./install/centrifugo/config:/centrifugo
     networks:
       strack:
   strack_media:
@@ -55,7 +55,8 @@ services:
       - mysql
       - redis
     volumes:
-      - /docker_strack/media/config:/app/config
+      - ./install/media/config:/app/config
+      - ./install/media/static:/app/static
     networks:
       strack:
   strack:
@@ -70,7 +71,7 @@ services:
       - strack_media
       - centrifugo
     volumes:
-      - /docker_strack/strack:/var/www
+      - ./install/strack/core:/var/www
     networks:
       strack:
 networks:
