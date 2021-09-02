@@ -36,12 +36,19 @@ services:
     networks:
       strack:
   centrifugo:
-    image: 'centrifugo/centrifugo:v2.8'
+    image: 'weijer/centrifugo:latest'
     restart: always
     ports:
       - '19803:8000'
-    command: centrifugo -c config.json
+    command:
+      - wait-for-it.sh
+      - redis:6379
+      - --
+      - centrifugo
+      - -c
+      - /centrifugo/config.json
     volumes:
+      - ./install/waitfor/wait-for-it.sh:/usr/local/bin/wait-for-it.sh
       - ./install/centrifugo/config:/centrifugo
     networks:
       strack:
@@ -50,11 +57,15 @@ services:
     restart: always
     ports:
       - '19802:8080'
-    depends_on:
-      - rabbitmq
-      - mysql
-      - redis
+    command:
+      - wait-for-it.sh
+      - redis:6379
+      - rabbitmq:5672
+      - mysql:3306
+      - --
+      - strack_media
     volumes:
+      - ./install/waitfor/wait-for-it.sh:/usr/local/bin/wait-for-it.sh
       - ./install/media/config:/app/config
       - ./install/media/static:/app/static
     networks:
@@ -64,13 +75,18 @@ services:
     restart: always
     ports:
       - '19801:80'
-    depends_on:
-      - rabbitmq
-      - mysql
-      - redis
-      - strack_media
-      - centrifugo
+    command:
+      - wait-for-it.sh
+      - redis:6379
+      - mysql:3306
+      - strack_media:8080
+      - centrifugo:8000
+      - --
+      - supervisord
+      - -c
+      - /etc/supervisor/conf.d/supervisord.conf
     volumes:
+      - ./install/waitfor/wait-for-it.sh:/usr/local/bin/wait-for-it.sh
       - ./install/strack/core:/var/www
     networks:
       strack:
