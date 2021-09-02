@@ -302,6 +302,7 @@ tar -zxvf ./source/strack.tar.gz  -C ${STRACK_CORE_DIR}
 cp ./install/strack/config/.env ${STRACK_CORE_DIR}/.env
 
 # 执行docker-compose
+chmod -R 777 ${STRACK_ROOT_DIR}/install
 echo "7. docker-compose up"
 
 cp docker-compose.yml ${STRACK_ROOT_DIR}/docker-compose.yml
