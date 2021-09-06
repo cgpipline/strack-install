@@ -10,6 +10,43 @@ cat << EOF
 
 EOF
 
+# 获取当前系统类型
+Get_Dist_Name()
+{
+    if grep -Eqii "CentOS" /etc/issue || grep -Eq "CentOS" /etc/*-release; then
+        DISTRO='CentOS'
+        PM='yum'
+    elif grep -Eqi "Red Hat Enterprise Linux Server" /etc/issue || grep -Eq "Red Hat Enterprise Linux Server" /etc/*-release; then
+        DISTRO='RHEL'
+        PM='yum'
+    elif grep -Eqi "Aliyun" /etc/issue || grep -Eq "Aliyun" /etc/*-release; then
+        DISTRO='Aliyun'
+        PM='yum'
+    elif grep -Eqi "Fedora" /etc/issue || grep -Eq "Fedora" /etc/*-release; then
+        DISTRO='Fedora'
+        PM='yum'
+    elif grep -Eqi "Debian" /etc/issue || grep -Eq "Debian" /etc/*-release; then
+        DISTRO='Debian'
+        PM='apt'
+    elif grep -Eqi "Ubuntu" /etc/issue || grep -Eq "Ubuntu" /etc/*-release; then
+        DISTRO='Ubuntu'
+        PM='apt'
+    elif grep -Eqi "Raspbian" /etc/issue || grep -Eq "Raspbian" /etc/*-release; then
+        DISTRO='Raspbian'
+        PM='apt'
+    else
+        DISTRO='unknow'
+    fi
+}
+
+Get_Dist_Name
+
+echo "0. Initialize ${DISTRO} system environment"
+
+# 判断docker安装好了没
+source ./env.sh
+$PM install -y unzip zip
+
 # 安装strack
 
 # strack 当前版本号
@@ -282,15 +319,22 @@ services:
       - /etc/supervisor/conf.d/supervisord.conf
     volumes:
       - ./install/waitfor/wait-for-it.sh:/usr/local/bin/wait-for-it.sh
-      - ./install/strack/core:/var/www
+      - ./install/strack/core/strack-main:/var/www
     networks:
       strack:
 networks:
   strack:
 EOF
 
+# 下载最新代码 https://github.com/cgpipline/strack/archive/refs/heads/main.zip
+echo "6. Download the latest code"
+
+rm -rf ./source/strack.zip
+wget http://github.com/cgpipline/strack/archive/refs/heads/main.zip -O ./source/strack.zip
+
+
 # 在根目录创建安装根目录文件夹
-echo "6. Copy files to ${STRACK_ROOT_DIR}"
+echo "7. Copy files to ${STRACK_ROOT_DIR}"
 
 rm -rf ${STRACK_ROOT_DIR}
 mkdir -p ${STRACK_ROOT_DIR}/install
@@ -298,12 +342,16 @@ cp -r ./install/*  ${STRACK_ROOT_DIR}/install
 
 # 解压 strack 到 ./install/starck/ 目录下面
 mkdir -p ${STRACK_CORE_DIR}
-tar -zxvf ./source/strack.tar.gz  -C ${STRACK_CORE_DIR}
-cp ./install/strack/config/.env ${STRACK_CORE_DIR}/.env
+unzip -o -d ${STRACK_CORE_DIR} ./source/strack.zip
+
+cp -f ./install/strack/config/.env ${STRACK_CORE_DIR}/strack-main/.env
+cp -f ./install/strack/index.php ${STRACK_CORE_DIR}/strack-main/index.php
+
+tar -zxvf ./source/vendor.tar.gz  -C ${STRACK_CORE_DIR}/strack-main
 
 # 执行docker-compose
 chmod -R 777 ${STRACK_ROOT_DIR}/install
-echo "7. docker-compose up"
+echo "8. docker-compose up"
 
 cp docker-compose.yml ${STRACK_ROOT_DIR}/docker-compose.yml
 cd ${STRACK_ROOT_DIR}
