@@ -10,7 +10,7 @@
 |---|---|
 |./run.sh install| 全新安装strack，一键安装过了会卸载重新安装|
 |./run.sh update| 同步strack最新仓库代码，更新strack|
-|./run.sh install| 卸载strack|
+|./run.sh uninstall| 卸载strack|
 
 # Strack 源代码仓库
 
