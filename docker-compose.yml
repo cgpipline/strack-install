@@ -86,7 +86,7 @@ services:
       - -c
       - /etc/supervisor/conf.d/supervisord.conf
     volumes:
-      - ./install/waitfor/wait-for-it.sh:/usr/local/bin/wait-for-it.sh
+      - ./install/waitfor/wait-for-it-php.sh:/usr/local/bin/wait-for-it.sh
       - ./install/strack/core/strack-main:/var/www
     networks:
       strack:
