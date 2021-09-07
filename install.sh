@@ -1,13 +1,11 @@
 #!/bin/bash
 
 cat << EOF
-                          _____ _                  _
-                         / ____| |                | |
-                        | (___ | |_ _ __ __ _  ___| | __
-                         \___ \\| __| '__/ _\` |/ __| |/ /
-                         ____) | |_| | | (_| | (__|   <
-                        |_____/ \\__|_|  \__,_|\\___|_|\\_\\
-
+ ____ _____ ____      _    ____ _  __  ___ _   _ ____ _____  _    _     _
+/ ___|_   _|  _ \\    / \\  / ___| |/ / |_ _| \\ | / ___|_   _|/ \\  | |   | |
+\\___ \\ | | | |_) |  / _ \\| |   | ' /   | ||  \\| \\___ \\ | | / _ \\ | |   | |
+ ___) || | |  _ <  / ___ \\ |___| . \\   | || |\\  |___) || |/ ___ \\| |___| |___
+|____/ |_| |_| \\_\\/_/   \\_\\____|_|\\_\\ |___|_| \\_|____/ |_/_/   \\_\\_____|_____|
 EOF
 
 # 获取当前系统类型
@@ -46,52 +44,6 @@ echo "0. Initialize ${DISTRO} system environment"
 # 判断docker安装好了没
 source ./env.sh
 $PM install -y unzip zip
-
-# 安装strack
-
-# strack 当前版本号
-STRACK_VERSION="4.0.0 bate"
-
-# 安装磁盘路径
-STRACK_ROOT_DIR="/docker_strack"
-
-# strack 代码存储路径
-STRACK_CORE_DIR=${STRACK_ROOT_DIR}"/install/strack/core"
-
-## 本机IP
-LOCAL_HOSTNAME="http://10.168.30.17"
-WS_HOSTNAME="ws://10.168.30.17"
-
-## 服务配置
-
-### 服务端口号
-STRACK_PORT=19801
-MEDIA_PORT=19802
-CENTRIFUGO_PORT=19803
-RABBITMQ_API_PORT=19804
-RABBITMQ_WEB_PORT=19805
-REDIS_PORT=19806
-MYSQL_PORT=19807
-
-# Redis 密码
-REDIS_PASSWORD="strack"
-
-# Mysql 密码
-MYSQL_PASSWORD="strack"
-
-# Rabbitmq 用户密码
-RABBITMQ_USER="strack"
-RABBITMQ_PASSWORD="strack"
-
-### 媒体服务密钥对
-MEDIA_ACCESS_KEY="448c93c47bb503b758421ee74cb25b33"
-MEDIA_SECRET_KEY="e8d4f937b77c0a343bbba34c5276b395"
-
-### 消息推送服务密钥配置
-CENTRIFUGO_WS_SECRET="94375620-0f51-4a67-9836-82a067593bc9"
-CENTRIFUGO_API_KEY="f7b1179f-7c23-48fe-a7e1-2d471fa501ad"
-CENTRIFUGO_ADMIN_PASSWORD="Strack_Centrifugo@666"
-
 
 # 动态生成配置文件
 
@@ -318,7 +270,7 @@ services:
       - -c
       - /etc/supervisor/conf.d/supervisord.conf
     volumes:
-      - ./install/waitfor/wait-for-it.sh:/usr/local/bin/wait-for-it.sh
+      - ./install/waitfor/wait-for-it-php.sh:/usr/local/bin/wait-for-it.sh
       - ./install/strack/core/strack-main:/var/www
     networks:
       strack:
@@ -330,8 +282,13 @@ EOF
 echo "6. Download the latest code"
 
 rm -rf ./source/strack.zip
-wget http://github.com/cgpipline/strack/archive/refs/heads/main.zip -O ./source/strack.zip
 
+wget -c -t 3 http://github.com/cgpipline/strack/archive/refs/heads/main.zip -O ./source/strack.zip 2>&1 >/dev/null ||
+{
+    echo '下载失败，github网络环境不好请多次尝试'
+    rm -rf ${STRACK_ROOT_DIR}
+    exit 1
+}
 
 # 在根目录创建安装根目录文件夹
 echo "7. Copy files to ${STRACK_ROOT_DIR}"
@@ -346,8 +303,6 @@ unzip -o -d ${STRACK_CORE_DIR} ./source/strack.zip
 
 cp -f ./install/strack/config/.env ${STRACK_CORE_DIR}/strack-main/.env
 cp -f ./install/strack/index.php ${STRACK_CORE_DIR}/strack-main/index.php
-
-tar -zxvf ./source/vendor.tar.gz  -C ${STRACK_CORE_DIR}/strack-main
 
 # 执行docker-compose
 chmod -R 777 ${STRACK_ROOT_DIR}/install
